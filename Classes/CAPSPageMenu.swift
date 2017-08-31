@@ -33,6 +33,7 @@ open class CAPSPageMenu: UIViewController {
     
     // MARK: - Properties
 
+    fileprivate var customFrame: CGRect!
     let menuScrollView = UIScrollView()
     let controllerScrollView = UIScrollView()
     var controllerArray : [UIViewController] = []
@@ -81,16 +82,23 @@ open class CAPSPageMenu: UIViewController {
      - parameter frame: Frame for page menu view
      - parameter options: Dictionary holding any customization options user might want to set
      */
-    public init(viewControllers: [UIViewController], frame: CGRect, options: [String: AnyObject]?) {
+    public init(viewControllers: [UIViewController],
+                frame: CGRect,
+                options: [String: AnyObject]?,
+                delegate: CAPSPageMenuDelegate? = nil) {
         super.init(nibName: nil, bundle: nil)
-        
+        self.delegate = delegate
         controllerArray = viewControllers
         
-        self.view.frame = frame
+        customFrame = frame
+        self.view.frame = customFrame
     }
     
-    public convenience init(viewControllers: [UIViewController], frame: CGRect, pageMenuOptions: [CAPSPageMenuOption]?) {
-        self.init(viewControllers:viewControllers, frame:frame, options:nil)
+    public convenience init(viewControllers: [UIViewController],
+                            frame: CGRect,
+                            pageMenuOptions: [CAPSPageMenuOption]?,
+                            delegate: CAPSPageMenuDelegate? = nil) {
+        self.init(viewControllers:viewControllers, frame:frame, options:nil, delegate: delegate)
         
         if let options = pageMenuOptions {
             configurePageMenu(options: options)
@@ -110,12 +118,17 @@ open class CAPSPageMenu: UIViewController {
     - parameter frame: Frame for page menu view
     - parameter configuration: A configuration instance for page menu
     */
-    public init(viewControllers: [UIViewController], frame: CGRect, configuration: CAPSPageMenuConfiguration) {
+    public init(viewControllers: [UIViewController],
+                frame: CGRect,
+                configuration: CAPSPageMenuConfiguration,
+                delegate: CAPSPageMenuDelegate? = nil) {
         super.init(nibName: nil, bundle: nil)
+        self.delegate = delegate
         self.configuration = configuration
         controllerArray = viewControllers
 
-        self.view.frame = frame
+        customFrame = frame
+        self.view.frame = customFrame
         
         //Build UI
         setUpUserInterface()
@@ -131,13 +144,19 @@ open class CAPSPageMenu: UIViewController {
      - parameter storyBoard: Parent storyboard for rendering a page menu
      - parameter configuration: A configuration instance for page menu
      */
-    public init(viewControllers: [UIViewController], in controller: UIViewController, with configuration: CAPSPageMenuConfiguration, usingStoryboards: Bool = false) {
+    public init(viewControllers: [UIViewController],
+                in controller: UIViewController,
+                with configuration: CAPSPageMenuConfiguration,
+                usingStoryboards: Bool = false,
+                delegate: CAPSPageMenuDelegate? = nil) {
         super.init(nibName: nil, bundle: nil)
+        self.delegate = delegate
         self.configuration = configuration
         controllerArray = viewControllers
         
         //Setup storyboard
-        self.view.frame = CGRect(x: 0, y: 0, width: controller.view.frame.size.width, height: controller.view.frame.size.height)
+        customFrame = CGRect(x: 0, y: 0, width: controller.view.frame.size.width, height: controller.view.frame.size.height)
+        self.view.frame = customFrame
         if usingStoryboards {
             controller.addChildViewController(self)
             controller.view.addSubview(self.view)
@@ -313,6 +332,7 @@ extension CAPSPageMenu {
         // http://stackoverflow.com/questions/15490140/auto-layout-error
         //
         // Given the SO answer and caveats presented there, we'll call layoutIfNeeded() instead.
+        view.frame = customFrame
         self.view.layoutIfNeeded()
     }
     
